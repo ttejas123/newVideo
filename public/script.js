@@ -13,7 +13,7 @@ let YourName = prompt('Type Your Name');
 
 var peer = new Peer(undefined,{   //we undefine this because peer server create it's own user it
   path: '/peerjs',
-  port: 443,
+  port: 3000,
   host:'/'
   //path: '/peerjs',
 	//host: '/',
@@ -21,6 +21,9 @@ var peer = new Peer(undefined,{   //we undefine this because peer server create 
 });
 
 let myVideoStream ;
+navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia;
+
+if (navigator.mediaDevices.getUserMedia) {
 navigator.mediaDevices.getUserMedia({     //by using this we can access user device media(audio, video) 
 	video: true,
 	audio: true
@@ -50,8 +53,10 @@ navigator.mediaDevices.getUserMedia({     //by using this we can access user dev
       }, 2000);
     })
 
+}).catch((err) => {
+  alert("Not able to connected"+ err);
 });
-
+}
 //if someone try to join room
 peer.on('open', async id =>{
    cUser = id; 
