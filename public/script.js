@@ -13,7 +13,7 @@ let YourName = prompt('Type Your Name');
 
 var peer = new Peer(undefined,{   //we undefine this because peer server create it's own user it
   path: '/peerjs',
-  port: 3000,
+  port: 443,
   host:'/'
   //path: '/peerjs',
 	//host: '/',
