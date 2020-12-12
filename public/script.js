@@ -7,21 +7,19 @@ let peers = {}, currentPeer = [];
 let userlist= [];
 let cUser;
 
-let YourName = prompt('Type Your Name');
-// let bar = confirm('Confirm or deny');
-//console.log(YourName);
+let YourName = prompt('Type Your Name'); //set your name for meeting
 
-var peer = new Peer(undefined,{   //we undefine this because peer server create it's own user it
+var peer = new Peer(undefined,{   //we undefine this because peer server create it's own user id
   path: '/peerjs',
-  port: 443,
+  port: 3000, //use 3000 here for local host
   host:'/'
-  //path: '/peerjs',
-	//host: '/',
-	//port: '3001'
 });
 
 let myVideoStream ;
-navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia;
+navigator.mediaDevices.getUserMedia = 
+   navigator.mediaDevices.getUserMedia 
+|| navigator.mediaDevices.webkitGetUserMedia 
+|| navigator.mediaDevices.mozGetUserMedia;
 
 if (navigator.mediaDevices.getUserMedia) {
 navigator.mediaDevices.getUserMedia({     //by using this we can access user device media(audio, video) 
@@ -49,47 +47,45 @@ navigator.mediaDevices.getUserMedia({     //by using this we can access user dev
     socket.on('user-connected', (userId)  =>{   //userconnected so we now ready to share 
       setTimeout(() => {
         //console.log('user ID fetch connection: '+ userId); //video stream
-        connectToNewUser(userId, stream);        //by this fuction which call user
-      }, 2000);
+         connectToNewUser(userId, stream);        //user to refer caller
+      }, 3000);
     })
 
 }).catch((err) => {
-  alert("Not able to connected"+ err);
+  alert("Erroe :- "+ err);
 });
 }
-//if someone try to join room
+
+//if someone try to join room peer check that user
 peer.on('open', async id =>{
    cUser = id; 
-   await socket.emit('join-room', ROOM_ID, id);
+   socket.emit('join-room', ROOM_ID, id);
   
 })
 
-socket.on('user-disconnected', userId =>{   //userdisconnected so we now ready to stopshare 
+socket.on('user-disconnected', userId =>{   //userdisconnected so remove his video
       if(peers[userId]) peers[userId].close();
       //console.log('user ID fetch Disconnect: '+ userId); 
-              //by this fuction which call user to stop share
+              
 }); 
 
 
-const connectToNewUser = (userId, stream) =>{
+const connectToNewUser = async (userId, stream) =>{
 	   //console.log('User-connected :-'+userId);
-     let call =  peer.call(userId, stream);       //we call new user and sended our video stream to them
-     //currentPeer = call.peerConnection;
+     let call = await peer.call(userId, stream);       //we call new user in room & send our stream
      const video = document.createElement('video');
      call.on('stream', userVideoStream => {
-          addVideoStream(video, userVideoStream);  // Show stream in some video/canvas element.
+          addVideoStream(video, userVideoStream);  // here we recive other user stream and use to refer them
       })
       call.on('close', () =>{
       	video.remove()
       })
-      //currentPeer = call.peerConnection;
-      peers[userId] = call;
+      peers[userId] = call;  //store all usersid to remove after they disconnected
       currentPeer.push(call.peerConnection);
-      console.log(currentPeer);
 }
 
 
- const addVideoStream = (video, stream) =>{      //this help to show and append or add video to user side
+ const addVideoStream = (video, stream) =>{      //this help to show and append or add video of other user
 	video.srcObject = stream;
   video.controls = true;
 	video.addEventListener('loadedmetadata', () =>{
@@ -114,14 +110,12 @@ const setUnmuteButton = ()=>{
    const html = `<i class="fas fa-microphone"></i>
                 <span>Mute</span>`;
    document.querySelector('.Mute__button').innerHTML = html;
-   //console.log("You are Unmuted");
 }
 
 const setMuteButton = () =>{
   const html = `<i class="fas fa-microphone-slash" style="color:red;"></i>
                 <span>Unmute</span>`;
   document.querySelector('.Mute__button').innerHTML = html;
-  //console.log("Muted");
 }
 
 //Video ON or OFF
@@ -140,14 +134,12 @@ const setVideoButton = ()=>{
    const html = `<i class="fas fa-video"></i>
                 <span>Stop Video</span>`;
    document.querySelector('.Video__button').innerHTML = html;
-   //console.log("Cammera Mode ON");
 }
 
 const unsetVideoButton = () =>{
   const html = `<i class="fas fa-video-slash" style="color:red;"></i>
                 <span>Start Video</span>`;
   document.querySelector('.Video__button').innerHTML = html;
- // console.log("Cammera Mode OFF");
 }
 
 //code for disconnect from client
@@ -168,7 +160,9 @@ const share =() =>{
   document.body.removeChild(share);
   alert('Copied');
  }
- //msg sen from user
+
+
+ //code of messaging
 let text = $('input');
 
 $('html').keydown((e) =>{
@@ -190,7 +184,7 @@ const scrollToBottom = () =>{
   d.scrollTop(d.prop("scrollHeight"));
 }
 
-//screenShare
+//screenShare 
 const screenshare = () =>{
  navigator.mediaDevices.getDisplayMedia({ 
      video:{
@@ -200,7 +194,6 @@ const screenshare = () =>{
             echoCancellation:true,
             noiseSupprission:true
      }
-
  }).then(stream =>{
      let videoTrack = stream.getVideoTracks()[0];
          videoTrack.onended = function(){
@@ -230,7 +223,7 @@ function stopScreenShare(){
   }       
 }
 
-//raised hand
+//raised hand option
 const raisedHand = ()=>{
   const sysbol = "&#9995;";
   socket.emit('message', sysbol, YourName);
@@ -241,7 +234,6 @@ const unChangeHandLogo = ()=>{
   const html = `<i class="far fa-hand-paper" style="color:red;"></i>
                 <span>Raised</span>`;
   document.querySelector('.raisedHand').innerHTML = html;
-  //console.log("chnage")
   changeHandLogo();
 }
 
@@ -262,39 +254,38 @@ socket.on('remove-User', (userId) =>{
 
 const getUsers = ()=>{ 
   socket.emit('seruI',); 
- 
 }
 
 const listOfUser = ()=>{
   //userDropDown.innerHTML = '';
   while (userDropDown.firstChild) {
-    userDropDown.removeChild(userDropDown.lastChild);
+    userDropDown.removeChild(userDropDown.lastChild); //remove user from dropDown list
   }
+  //code to add users in dropdown button (participents)
   for (var i = 0; i < userlist.length; i++) {
     var x = document.createElement("a");
     var t = document.createTextNode(`VideoSector ${i+1}`); 
     x.appendChild(t);
     userDropDown.append(x);
   }
+  //checking to identify superUser click on whcich userId in DropDown list
   const anchors = document.querySelectorAll('a');
   for (let i = 0; i < anchors.length; i++) {
     anchors[i].addEventListener('click', () => {
-        //console.log(`Link is clicked ${i}`);
         anchoreUser(userlist[i]);
     });
   }
 } 
 
+// if superUser remove someone than everyone should do the same
 const anchoreUser = (userR)=>{
   socket.emit('removeUser', cUser, userR);
 }
 
-
+//here we geting list of new users in rooms
 socket.on('all_users_inRoom', (userI) =>{ 
-      //console.log(userI);
       userlist.splice(0,userlist.length);
       userlist.push.apply(userlist ,userI);
-      //console.log(userlist);
       listOfUser();
       document.getElementById("myDropdown").classList.toggle("show");
 });
