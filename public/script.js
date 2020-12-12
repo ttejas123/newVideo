@@ -11,7 +11,7 @@ let YourName = prompt('Type Your Name'); //set your name for meeting
 
 var peer = new Peer(undefined,{   //we undefine this because peer server create it's own user id
   path: '/peerjs',
-  port: 3000, //use 3000 here for local host
+  port: 443, //use 3000 here for local host
   host:'/'
 });
 
