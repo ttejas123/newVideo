@@ -47,7 +47,7 @@ navigator.mediaDevices.getUserMedia({     //by using this we can access user dev
     socket.on('user-connected', (userId)  =>{   //userconnected so we now ready to share 
       setTimeout(() => {
         //console.log('user ID fetch connection: '+ userId); //video stream
-         connectToNewUser(userId, stream);        //user to refer caller
+        connectToNewUser(userId, stream);        //user to refer caller
       }, 3000);
     })
 
@@ -59,7 +59,7 @@ navigator.mediaDevices.getUserMedia({     //by using this we can access user dev
 //if someone try to join room peer check that user
 peer.on('open', async id =>{
    cUser = id; 
-   socket.emit('join-room', ROOM_ID, id);
+   await socket.emit('join-room', ROOM_ID, id);
   
 })
 
@@ -70,9 +70,9 @@ socket.on('user-disconnected', userId =>{   //userdisconnected so remove his vid
 }); 
 
 
-const connectToNewUser = (userId, stream) =>{
+const connectToNewUser = async (userId, stream) =>{
 	   //console.log('User-connected :-'+userId);
-     let call = peer.call(userId, stream);       //we call new user in room & send our stream
+     let call = await peer.call(userId, stream);       //we call new user in room & send our stream
      const video = document.createElement('video');
      call.on('stream', userVideoStream => {
           addVideoStream(video, userVideoStream);  // here we recive other user stream and use to refer them
