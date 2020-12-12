@@ -5,7 +5,7 @@ const myVideo = document.createElement('video');
 myVideo.muted = true;
 let peers = {}, currentPeer = [];
 let userlist= [];
-let cUser;
+let cUser, getBoisData =  "This is boies data";
 
 let YourName = prompt('Type Your Name'); //set your name for meeting
 
