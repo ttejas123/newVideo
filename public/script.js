@@ -70,9 +70,9 @@ socket.on('user-disconnected', userId =>{   //userdisconnected so remove his vid
 }); 
 
 
-const connectToNewUser = async (userId, stream) =>{
+const connectToNewUser = (userId, stream) =>{
 	   //console.log('User-connected :-'+userId);
-     let call = await peer.call(userId, stream);       //we call new user in room & send our stream
+     let call =  peer.call(userId, stream);       //we call new user in room & send our stream
      const video = document.createElement('video');
      call.on('stream', userVideoStream => {
           addVideoStream(video, userVideoStream);  // here we recive other user stream and use to refer them
